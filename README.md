@@ -36,7 +36,6 @@ Add the following configuration to your Neovim setup with [lazy.nvim](https://gi
 {
   "jellydn/hurl.nvim",
   dependencies = {
-    "MunifTanjim/nui.nvim",
     "nvim-treesitter/nvim-treesitter",
     -- Optional, for markdown rendering with render-markdown.nvim
     {
@@ -395,7 +394,6 @@ For example, here is my [autocmd](https://github.com/jellydn/lazy-nvim-ide/commi
 
 - [Hurl - Run and Test HTTP Requests](https://hurl.dev/)
 - Inspired by [ray-x/web-tools.nvim: Neovim plugin for web developers](https://github.com/ray-x/web-tools.nvim)
-- Utilize [MunifTanjim/nui.nvim: UI components for Neovim plugins and configurations](https://github.com/MunifTanjim/nui.nvim)
 
 ## Author
 

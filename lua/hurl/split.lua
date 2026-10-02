@@ -1,16 +1,33 @@
-local Split = require('nui.split')
-local event = require('nui.utils.autocmd').event
-
-local split = Split({
-  relative = 'editor',
-  position = _HURL_GLOBAL_CONFIG.split_position,
-  size = _HURL_GLOBAL_CONFIG.split_size,
-  buf_options = { filetype = 'markdown' },
-})
-
+local ui = require('hurl.ui')
 local utils = require('hurl.utils')
 
 local M = {}
+
+local split = { bufnr = nil, winid = nil }
+
+local function quit()
+  ui.close(split.winid)
+end
+
+local function open()
+  if ui.is_open(split.winid) then
+    return
+  end
+  local config = _HURL_GLOBAL_CONFIG
+  split.bufnr = ui.new_buf('markdown')
+  split.winid = ui.open_split(split.bufnr, config.split_position, config.split_size)
+
+  ui.map(split.bufnr, 'n', config.mappings.close, quit)
+  if config.auto_close then
+    vim.api.nvim_create_autocmd('BufLeave', {
+      buffer = split.bufnr,
+      once = true,
+      callback = function()
+        vim.schedule(quit)
+      end,
+    })
+  end
+end
 
 -- Show content in a split
 ---@param data table
@@ -18,19 +35,7 @@ local M = {}
 ---   - headers table
 ---@param type 'json' | 'html' | 'xml' | 'text' | 'markdown'
 M.show = function(data, type)
-  local function quit()
-    vim.cmd(_HURL_GLOBAL_CONFIG.mappings.close)
-    split:unmount()
-  end
-  -- mount/open the component
-  split:mount()
-
-  if _HURL_GLOBAL_CONFIG.auto_close then
-    -- unmount component when buffer is closed
-    split:on(event.BufLeave, function()
-      quit()
-    end)
-  end
+  open()
 
   local output_lines = {}
 
@@ -87,21 +92,17 @@ M.show = function(data, type)
   end
 
   -- Set content
-  vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, output_lines)
-
-  split:map('n', _HURL_GLOBAL_CONFIG.mappings.close, function()
-    quit()
-  end)
+  ui.set_lines(split.bufnr, output_lines)
 end
 
 M.clear = function()
   -- Check if split is open
-  if not split.winid then
+  if not ui.is_open(split.winid) then
     return
   end
 
   -- Clear the buffer and add `Processing...` message with the current Hurl command
-  vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, {
+  ui.set_lines(split.bufnr, {
     'Processing...',
     '',
     '# Hurl Command',

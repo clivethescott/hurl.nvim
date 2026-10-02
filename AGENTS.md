@@ -6,7 +6,7 @@
 
 - **Repository:** [jellydn/hurl.nvim](https://github.com/jellydn/hurl.nvim)
 - **Primary Language:** Lua
-- **Key Dependencies:** `nui.nvim`, `nvim-treesitter`
+- **Key Dependencies:** `nvim-treesitter`
 - **Test Framework:** `vusted`
 - **Build System:** `Makefile`
 - **CI:** GitHub Actions
@@ -160,8 +160,9 @@ The repository contains a Neovim plugin written in Lua that provides HTTP reques
 lua/hurl/
 ├── init.lua           # Plugin setup and configuration
 ├── main.lua           # Command registration and core functionality
-├── popup.lua          # Popup window implementation using nui.nvim
+├── popup.lua          # Popup window implementation
 ├── split.lua          # Split window implementation
+├── ui.lua             # Native window/buffer helpers
 ├── http_utils.lua     # HTTP request processing
 ├── utils.lua          # General utilities and helpers
 ├── git_utils.lua      # Git-related functionality
@@ -274,7 +275,7 @@ end, {})
 
 ### b. **Best Practices for Coding Assistance Agents**
 
-- **Always check plugin dependencies** before modifying core functionality (nui.nvim)
+- **Always check plugin dependencies** before modifying core functionality
 - **When adding commands:** Update both `main.lua` and documentation
 - **When modifying UI:** Ensure both popup and split modes work consistently
 - **When changing config:** Update default config and add validation
@@ -286,7 +287,7 @@ end, {})
 - **Module structure:** Follow Neovim plugin conventions with `local M = {}` pattern
 - **Configuration:** Use `vim.tbl_deep_extend` for merging user config
 - **Error handling:** Use `pcall` and provide meaningful error messages
-- **UI creation:** Use nui.nvim for consistent UI components
+- **UI creation:** Use the native window API via `hurl.ui`
 - **Async operations:** Use `vim.schedule` for UI updates from async contexts
 - **Command registration:** Use `vim.api.nvim_create_user_command` with proper options
 
