@@ -1,12 +1,12 @@
 local M = {}
 
---- Get the git root directory of the cwd
+--- Get the git root directory of the current buffer
 ---@return string|nil The git root directory
 local function get_git_root()
-  return vim.fs.root(vim.uv.cwd() or 0, '.git')
+  return vim.fs.root(0, '.git')
 end
 
---- Check if the current directory is a git repo
+--- Check if the current buffer is inside a git repo
 ---@return boolean
 local function is_git_repo()
   return get_git_root() ~= nil
