@@ -43,11 +43,18 @@ M.show = function(data, type)
     -- For markdown, we just use the body as-is
     output_lines = vim.split(data.body, '\n')
   else
-    -- Add curl command
-    table.insert(output_lines, '# Curl Command')
+    -- Add body
+    table.insert(output_lines, '# Body')
     table.insert(output_lines, '')
-    table.insert(output_lines, '```bash')
-    table.insert(output_lines, data.curl_command or 'N/A')
+    table.insert(output_lines, '```' .. type)
+    local content = utils.format(data.body, type)
+    if content then
+      for _, line in ipairs(content) do
+        table.insert(output_lines, line)
+      end
+    else
+      table.insert(output_lines, 'No content')
+    end
     table.insert(output_lines, '```')
     table.insert(output_lines, '')
 
@@ -62,25 +69,18 @@ M.show = function(data, type)
       table.insert(output_lines, 'No headers available')
     end
 
-    -- Add response time
+    -- Add status and response time
     table.insert(output_lines, '')
     local response_time = tonumber(data.response_time) or 0
     table.insert(output_lines, string.format('**Status**: %s', data.status or 'N/A'))
     table.insert(output_lines, string.format('**Response Time**: %.2f ms', response_time))
     table.insert(output_lines, '')
 
-    -- Add body
-    table.insert(output_lines, '# Body')
+    -- Add curl command
+    table.insert(output_lines, '# Curl Command')
     table.insert(output_lines, '')
-    table.insert(output_lines, '```' .. type)
-    local content = utils.format(data.body, type)
-    if content then
-      for _, line in ipairs(content) do
-        table.insert(output_lines, line)
-      end
-    else
-      table.insert(output_lines, 'No content')
-    end
+    table.insert(output_lines, '```bash')
+    table.insert(output_lines, data.curl_command or 'N/A')
     table.insert(output_lines, '```')
   end
 
