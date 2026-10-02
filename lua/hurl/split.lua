@@ -43,14 +43,6 @@ M.show = function(data, type)
     -- For markdown, we just use the body as-is
     output_lines = vim.split(data.body, '\n')
   else
-    -- Add request information
-    table.insert(output_lines, '# Request')
-    table.insert(output_lines, '')
-    table.insert(output_lines, string.format('**Method**: %s', data.method or 'N/A'))
-    table.insert(output_lines, string.format('**URL**: %s', data.url or 'N/A'))
-    table.insert(output_lines, string.format('**Status**: %s', data.status or 'N/A'))
-    table.insert(output_lines, '')
-
     -- Add curl command
     table.insert(output_lines, '# Curl Command')
     table.insert(output_lines, '')
@@ -73,6 +65,7 @@ M.show = function(data, type)
     -- Add response time
     table.insert(output_lines, '')
     local response_time = tonumber(data.response_time) or 0
+    table.insert(output_lines, string.format('**Status**: %s', data.status or 'N/A'))
     table.insert(output_lines, string.format('**Response Time**: %.2f ms', response_time))
     table.insert(output_lines, '')
 
