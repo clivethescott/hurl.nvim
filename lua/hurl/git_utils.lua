@@ -1,21 +1,15 @@
 local M = {}
 
+--- Get the git root directory of the cwd
+---@return string|nil The git root directory
+local function get_git_root()
+  return vim.fs.root(vim.uv.cwd() or 0, '.git')
+end
+
 --- Check if the current directory is a git repo
 ---@return boolean
 local function is_git_repo()
-  vim.fn.system('git rev-parse --is-inside-work-tree')
-
-  return vim.v.shell_error == 0
-end
-
---- Get the git root directory
----@return string|nil The git root directory
-local function get_git_root()
-  local res = vim.system({ 'git', 'rev-parse', '--show-toplevel' }, { text = true }):wait()
-  if res.code ~= 0 then
-    return nil
-  end
-  return vim.trim(res.stdout)
+  return get_git_root() ~= nil
 end
 
 local function split_path(path)
