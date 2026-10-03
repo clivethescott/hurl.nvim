@@ -1,5 +1,98 @@
 local M = {}
 
+-- hurlfmt does not accept these curl response and terminal flags. Remove them without
+-- changing quoted values or request options such as -L.
+local ignored_long_options = {
+  ['--fail'] = true,
+  ['--fail-with-body'] = true,
+  ['--silent'] = true,
+  ['--show-error'] = true,
+  ['--no-progress-meter'] = true,
+  ['--progress-bar'] = true,
+}
+
+local options_with_values = {
+  ['-b'] = true,
+  ['-d'] = true,
+  ['-H'] = true,
+  ['-o'] = true,
+  ['-u'] = true,
+  ['-X'] = true,
+  ['--cookie'] = true,
+  ['--data'] = true,
+  ['--data-raw'] = true,
+  ['--header'] = true,
+  ['--max-redirs'] = true,
+  ['--output'] = true,
+  ['--request'] = true,
+  ['--retry'] = true,
+  ['--url'] = true,
+  ['--user'] = true,
+}
+
+local function normalize_curl_options(command)
+  local output = {}
+  local token = {}
+  local quote
+  local escaped = false
+  local next_is_value = false
+  local after_options = false
+
+  local function flush_token()
+    if #token == 0 then
+      return
+    end
+
+    local value = table.concat(token)
+    token = {}
+    if next_is_value then
+      next_is_value = false
+    elseif not after_options then
+      if value == '--' then
+        after_options = true
+      elseif ignored_long_options[value] then
+        return
+      else
+        local flags = value:match('^%-([fsSLkv]+)$')
+        if flags then
+          local kept = flags:gsub('[fsS]', '')
+          if kept == '' then
+            return
+          end
+          value = '-' .. kept
+        end
+        next_is_value = options_with_values[value] or false
+      end
+    end
+    table.insert(output, value)
+  end
+
+  for i = 1, #command do
+    local char = command:sub(i, i)
+    if escaped then
+      table.insert(token, char)
+      escaped = false
+    elseif char == '\\' and quote ~= "'" then
+      table.insert(token, char)
+      escaped = true
+    elseif char == quote then
+      table.insert(token, char)
+      quote = nil
+    elseif (char == "'" or char == '"') and not quote then
+      table.insert(token, char)
+      quote = char
+    elseif char:match('%s') and not quote then
+      flush_token()
+      table.insert(output, char)
+    else
+      table.insert(token, char)
+    end
+  end
+  flush_token()
+
+  return table.concat(output)
+end
+
 --- Convert a curl command from the system clipboard and insert it below the cursor.
 function M.paste_curl()
   local curl = vim.fn.getreg('+')
@@ -22,7 +115,7 @@ function M.paste_curl()
   local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
   vim.system({ 'hurlfmt', '--in', 'curl', '--out', 'hurl', '--no-color' }, {
-    stdin = curl,
+    stdin = normalize_curl_options(curl),
     text = true,
   }, function(result)
     vim.schedule(function()

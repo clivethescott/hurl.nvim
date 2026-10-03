@@ -258,6 +258,7 @@ Run the entire file by pressing `<leader>A` or run `HurlRunner` command.
 Paste a curl command copied to the system clipboard with `HurlPasteCurl`.
 The command uses `hurlfmt --in curl --out hurl --no-color` and inserts the
 converted request below the current line. Map it to `<space>hp` if desired.
+Curl response and terminal flags like `-f`, `-s`, and `-S` are omitted; `-L` is retained.
 
 <https://gyazo.com/e554e81788aad910848ff991c9369d7b>
 

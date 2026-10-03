@@ -72,6 +72,34 @@ describe('Paste curl from clipboard', function()
     assert.are.same({ 'GET https://example.com' }, vim.api.nvim_buf_get_lines(0, 0, -1, false))
   end)
 
+  it('keeps redirect handling from combined curl output flags', function()
+    curl = 'curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh'
+
+    clipboard.paste_curl()
+    assert.is_true(vim.wait(100, function()
+      return vim.api.nvim_get_current_line() == 'GET https://example.com'
+    end))
+
+    assert.are.equal(
+      'curl -L https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh',
+      input
+    )
+  end)
+
+  it('preserves flags in quoted and option values', function()
+    curl = "curl --fail --silent --show-error -H 'X-Flags: -fsSL' --data '-f' https://example.com"
+
+    clipboard.paste_curl()
+    assert.is_true(vim.wait(100, function()
+      return vim.api.nvim_get_current_line() == 'GET https://example.com'
+    end))
+
+    assert.are.equal(
+      "curl    -H 'X-Flags: -fsSL' --data '-f' https://example.com",
+      input
+    )
+  end)
+
   it('leaves the buffer alone when conversion fails', function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, { 'GET https://original.example' })
     result = { code = 1, stdout = '', stderr = 'invalid curl' }

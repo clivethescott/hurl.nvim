@@ -100,6 +100,8 @@ To paste a curl command, copy it to the system clipboard and run
 `:HurlPasteCurl` (or map it to `<space>hp` as in the example above). This uses
 `hurlfmt --in curl --out hurl --no-color` and inserts the converted request
 below the cursor in the current buffer. Install `hurlfmt` separately if needed.
+Curl response and terminal flags such as `-f`, `-s`, and `-S` are omitted during conversion;
+request options such as `-L` are retained.
 
 Simple demo in split mode:
 
