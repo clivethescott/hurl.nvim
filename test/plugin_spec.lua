@@ -21,6 +21,10 @@ describe('Hurl.nvim plugin', function()
     assert.are.equal(2, vim.fn.exists(':HurlSelectEnvFile'))
   end)
 
+  it('should define the curl paste command', function()
+    assert.are.equal(2, vim.fn.exists(':HurlPasteCurl'))
+  end)
+
   it('should reject an invalid environment file pattern without throwing', function()
     local original_pattern = _HURL_GLOBAL_CONFIG.env_pattern
     _HURL_GLOBAL_CONFIG.env_pattern = '['

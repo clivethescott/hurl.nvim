@@ -42,6 +42,7 @@ FEATURES                                                  *hurl.nvim-features*
 - 🛠 Set environment variables with `HurlSetVariable` command.
 - 📝 View and manage environment variables with `HurlManageVariable` command.
 - 📜 View the response of your last HTTP request with `HurlShowLastResponse` command.
+- 📋 Convert a curl command from the system clipboard with `HurlPasteCurl` (requires `hurlfmt`).
 
 
 USAGE                                                        *hurl.nvim-usage*
@@ -102,6 +103,7 @@ Add the following configuration to your Neovim setup with lazy.nvim
         { "<leader>tm", "<cmd>HurlToggleMode<CR>", desc = "Hurl Toggle Mode" },
         { "<leader>tv", "<cmd>HurlVerbose<CR>", desc = "Run Api in verbose mode" },
         { "<leader>tV", "<cmd>HurlVeryVerbose<CR>", desc = "Run Api in very verbose mode" },
+        { "<leader>hp", "<cmd>HurlPasteCurl<CR>", desc = "Paste curl as Hurl" },
         -- Run Hurl request in visual mode
         { "<leader>h", ":HurlRunner<CR>", desc = "Hurl Runner", mode = "v" },
       },
@@ -252,6 +254,10 @@ Check out the following demos to see `hurl.nvim` in action:
 RUN A FILE ~
 
 Run the entire file by pressing `<leader>A` or run `HurlRunner` command.
+
+Paste a curl command copied to the system clipboard with `HurlPasteCurl`.
+The command uses `hurlfmt --in curl --out hurl --no-color` and inserts the
+converted request below the current line. Map it to `<space>hp` if desired.
 
 <https://gyazo.com/e554e81788aad910848ff991c9369d7b>
 

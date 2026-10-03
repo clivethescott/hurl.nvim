@@ -103,6 +103,11 @@ function M.setup()
   -- Show virtual text for Hurl entries
   codelens.setup()
 
+  -- Insert a curl command from the system clipboard as Hurl.
+  utils.create_cmd('HurlPasteCurl', function()
+    require('hurl.clipboard').paste_curl()
+  end, { nargs = 0 })
+
   -- Run request for a range of lines or the entire file
   utils.create_cmd('HurlRunner', function(opts)
     if opts.range ~= 0 then
