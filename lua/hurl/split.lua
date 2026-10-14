@@ -3,27 +3,34 @@ local utils = require('hurl.utils')
 
 local M = {}
 
-local split = { bufnr = nil, winid = nil }
+local splits = {}
+
+local function current()
+  local tab = vim.api.nvim_get_current_tabpage()
+  splits[tab] = splits[tab] or {}
+  return splits[tab]
+end
 
 --- Replace the split's content; the buffer is read-only otherwise
-local function set_lines(lines)
+local function set_lines(split, lines)
   vim.bo[split.bufnr].modifiable = true
   ui.set_lines(split.bufnr, lines)
   vim.bo[split.bufnr].modifiable = false
 end
 
-local function quit()
-  ui.close(split.winid)
-end
-
 local function open()
+  local split = current()
   if ui.is_open(split.winid) then
-    return
+    return split
   end
   local config = _HURL_GLOBAL_CONFIG
   split.bufnr = ui.new_buf('markdown')
   vim.bo[split.bufnr].modifiable = false
   split.winid = ui.open_split(split.bufnr, config.split_position, config.split_size)
+
+  local function quit()
+    ui.close(split.winid)
+  end
 
   ui.map(split.bufnr, 'n', config.mappings.close, quit)
   if config.auto_close then
@@ -35,6 +42,7 @@ local function open()
       end,
     })
   end
+  return split
 end
 
 -- Show content in a split
@@ -43,7 +51,7 @@ end
 ---   - headers table
 ---@param type 'json' | 'html' | 'xml' | 'text' | 'markdown'
 M.show = function(data, type)
-  open()
+  local split = open()
 
   local output_lines = {}
 
@@ -93,17 +101,18 @@ M.show = function(data, type)
   end
 
   -- Set content
-  set_lines(output_lines)
+  set_lines(split, output_lines)
 end
 
 M.clear = function()
+  local split = current()
   -- Check if split is open
   if not ui.is_open(split.winid) then
     return
   end
 
   -- Clear the buffer and add `Processing...` message with the current Hurl command
-  set_lines({
+  set_lines(split, {
     'Processing...',
     '',
     '# Hurl Command',
