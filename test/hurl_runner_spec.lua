@@ -73,6 +73,32 @@ describe('Hurl runner', function()
     assert.are.equal('error', history_status)
   end)
 
+  it('should report when hurl executes no entries', function()
+    local shown_data
+    local history_updated = false
+    package.loaded['hurl.popup'] = {
+      clear = function() end,
+      show = function(data, display_type)
+        shown_data = data
+        assert.are.equal('markdown', display_type)
+      end,
+    }
+    history.update_history = function()
+      history_updated = true
+    end
+    vim.fn.jobstart = function(_, options)
+      options.on_stderr(nil, { '' })
+      options.on_exit(nil, 0)
+      return 1
+    end
+
+    hurl_runner.execute_hurl_cmd({})
+
+    assert.matches('No entry was executed', shown_data.body)
+    assert.is_false(history_updated)
+    assert.is_false(hurl_runner.is_running)
+  end)
+
   it('should stop running when the configured display cannot load', function()
     local job_started = false
     local spinner_hidden = false

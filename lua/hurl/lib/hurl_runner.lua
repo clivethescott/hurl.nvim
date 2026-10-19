@@ -394,6 +394,13 @@ function M.execute_hurl_cmd(opts, callback)
         -- Display the result using popup or split based on the configuration
         local container = require('hurl.' .. _HURL_GLOBAL_CONFIG.mode)
 
+        -- hurl exits 0 when a file has no entries (e.g. only comments)
+        if #result.entries == 0 then
+          utils.log_info('hurl: no entry was executed')
+          container.show({ body = '# Hurl\n\nNo entry was executed.' }, 'markdown')
+          return
+        end
+
         -- Prepare the data for display
         local last_entry = result.entries[#result.entries]
         local entry_display_data = {
